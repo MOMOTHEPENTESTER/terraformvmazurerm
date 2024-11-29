@@ -1,37 +1,45 @@
-resource "azurerm_network_interface" "terraformdemo" {
-  name                = "terra-nic"
-  location            = azurerm_resource_group.terraformdemo01.location
-  resource_group_name = azurerm_resource_group.terraformdemo01.name
+resource "azurerm_virtual_network" "terra-demo" {
 
-  ip_configuration {
-    name                          = "internal"
-    subnet_id                     = azurerm_subnet.terraformsubnet.id
-    private_ip_address_allocation = "Dynamic"
-    public_ip_address_id          = azurerm_public_ip.terrapublicip.id
+  name                = "terra-demo-vnet"
 
-  }
+  address_space       = ["10.0.0.0/16"]
+
+  location            = azurerm_resource_group.terra-demo.location
+
+  resource_group_name = azurerm_resource_group.terra-demo.name
+
+  depends_on = [azurerm_resource_group.terra-demo]
+
+ 
+}
+ 
+resource "azurerm_subnet" "terra-demo" {
+
+  name                 = "SubnetA"
+
+  resource_group_name  = azurerm_resource_group.terra-demo.name
+
+  virtual_network_name = azurerm_virtual_network.terra-demo.name
+
+  address_prefixes     = ["10.0.2.0/24"]
+
 }
 
-resource "azurerm_windows_virtual_machine" "terraformdemo" {
-  name                = "virtualmachine"
-  resource_group_name = azurerm_resource_group.terraformdemo01.name
-  location            = azurerm_resource_group.terraformdemo01.location
-  size                = "Standard_B2ts_v2"
-  admin_username      = "tester"
-  admin_password      = "P@$$w0rd1234!"
-  network_interface_ids = [
-    azurerm_network_interface.terraformdemo.id,
-  ]
+#resource "azurerm_public_ip" "terra-demo" {
 
-  os_disk {
-    caching              = "ReadWrite"
-    storage_account_type = "Standard_LRS"
-  }
+#  name                = "terra-demo-machine01-pip"
 
-  source_image_reference {
-    publisher = "MicrosoftWindowsServer"
-    offer     = "WindowsServer"
-    sku       = "2016-Datacenter"
-    version   = "latest"
-  }
-}
+#  resource_group_name = azurerm_resource_group.terra-demo.name
+
+# location            = azurerm_resource_group.terra-demo.location
+
+#  allocation_method   = "Static"
+ 
+#  # tags = {
+
+#  #   environment = "Production"
+
+#  # }
+
+#}
+ 
